@@ -45,11 +45,12 @@ func (s *Searcher) Search(regexp string) ([]Result, error) {
 
 	// Start searching. Grep takes files to search on in and sends
 	// results to out.
-	in := make(chan *pt.GrepParams, 16)
-	out := make(chan *pt.PrintParams, 16)
-	go pt.Grep(in, out, &pt.Option{
+	opts := pt.Option{
 		Proc: runtime.NumCPU(),
-	})
+	}
+	in := make(chan *pt.GrepParams, opts.Proc)
+	out := make(chan *pt.PrintParams, opts.Proc)
+	go pt.Grep(in, out, &opts)
 
 	// Send files to search.
 	go func() {
