@@ -56,7 +56,7 @@ func (s *Searcher) Search(regexp string) ([]Result, error) {
 	go func() {
 		for _, id := range fileids {
 			in <- &pt.GrepParams{
-				Path: s.idx.Name(id),
+				Path:    s.idx.Name(id),
 				Pattern: pat,
 			}
 		}
