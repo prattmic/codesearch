@@ -40,6 +40,8 @@ func main() {
 	}
 
 	for _, r := range results {
-		fmt.Printf("%+v\n", r)
+		for _, m := range r.Matches {
+			fmt.Printf("%s:%d: %s\n", r.Path, m.Line.Num, m.Line.Str)
+		}
 	}
 }
