@@ -3,10 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"path"
 
 	"github.com/gorilla/mux"
@@ -25,15 +24,15 @@ func (s *SourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	location := path.Join(*root, p)
 	log.Printf("Serving: %s", location)
 
-	f, err := os.Open(location)
+	d, err := ioutil.ReadFile(location)
 	if err != nil {
 		log.Printf("Error opening file: %v", err)
 		http.Error(w, "404 Not Found", 404)
 		return
 	}
 
-	if _, err := io.Copy(w, f); err != nil {
-		log.Printf("Error copying file: %v", err)
+	if err := sourceTemplate.Execute(w, d); err != nil {
+		log.Printf("Error executing template: %v", err)
 		http.Error(w, "500 Internal Server Error", 500)
 		return
 	}
