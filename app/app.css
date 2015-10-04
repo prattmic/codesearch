@@ -1,0 +1,6 @@
+.navbar-form-alt {
+  /* Don't sit at the top of the page */
+  margin-top: 8px;
+  /* Fill the padding on the right */
+  margin-right: -15px;
+}
