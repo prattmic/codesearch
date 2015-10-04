@@ -8,18 +8,18 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
 
 var root = flag.String("root", "", "Root directory from which to serve files")
 
-// SourceHandler serves the requested source file.
-func SourceHandler(w http.ResponseWriter, r *http.Request) {
-	// This is served at /src, so strip that off to get the requested file.
-	p := strings.TrimPrefix(r.URL.Path, "/src")
-	p = path.Clean(p)
+// SourceHandler implements http.Handler, serving the file specified by the URL.
+// If served with a prefix, use http.StripPrefix on this Handler.
+type SourceHandler struct{}
+
+func (s *SourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	p := path.Clean(r.URL.Path)
 	log.Printf("File requested: %s", p)
 
 	location := path.Join(*root, p)
@@ -48,7 +48,7 @@ func main() {
 		fmt.Fprintf(w, "ok")
 	})
 
-	r.PathPrefix("/src").Methods("GET").HandlerFunc(SourceHandler)
+	r.PathPrefix("/src").Methods("GET").Handler(http.StripPrefix("/src", &SourceHandler{}))
 
 	http.ListenAndServe(":8080", r)
 }
