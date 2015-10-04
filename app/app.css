@@ -4,3 +4,16 @@
   /* Fill the padding on the right */
   margin-right: -15px;
 }
+
+/* Top navbar extends the full screen width. */
+#nav-container {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Eliminate navbar rounded corners and left/right borders. */
+.navbar {
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+}
