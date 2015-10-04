@@ -1,53 +1,53 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="search">
-<head>
-	<meta charset="UTF-8" />
+  <head>
+    <meta charset="UTF-8" />
 
-	<!-- Bootstrap, for layout -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <!-- Bootstrap, for layout -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
-	<!-- Prettify, for source code highlighting -->
-	<link rel="stylesheet" href="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.css" />
+    <!-- Prettify, for source code highlighting -->
+    <link rel="stylesheet" href="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.css" />
 
-	<link rel="stylesheet" href="app.css" />
-	<link rel="stylesheet" href="prettify.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="prettify.css" />
 
-	<title>Code Search</title>
-</head>
+    <title>Code Search</title>
+  </head>
 
-<body ng-controller="MainController as main">
-	<div class="container-fluid">
-		<nav class="navbar navbar-default">
-			<div class="container">
-				<div class="navbar-header">
-					<a class="navbar-brand" href="#">Code Search</a>
-				</div>
+  <body ng-controller="MainController as main">
+    <div class="container-fluid">
+      <nav class="navbar navbar-default">
+        <div class="container">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">Code Search</a>
+          </div>
 
-				<div class="navbar-collapse">
-					<form class="navbar-form navbar-left" name="search">
-						<div class="form-group">
-							<input class="form-control" placeholder="Search" />
-						</div>
-						<button type="submit" class="btn btn-primary">Search</button>
-					</form>
-				</div>
-			</div>
-		</nav>
-	</div>
+          <div class="navbar-collapse">
+            <form class="navbar-form navbar-left" name="search">
+              <div class="form-group">
+                <input class="form-control" placeholder="Search" />
+              </div>
+              <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+    </div>
 
-	<div class="container">
-		<!-- A file being displayed -->
-		<div id="file">
-			<prettify>{{main.file}}</prettify>
-		</div>
-	</div>
+    <div class="container">
+      <!-- A file being displayed -->
+      <div id="file">
+        <prettify>{{main.file}}</prettify>
+      </div>
+    </div>
 
-	<!-- Angular, for app -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
-	<script src="app.js"></script>
-	<script src="prettify.js"></script>
+    <!-- Angular, for app -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+    <script src="app.js"></script>
+    <script src="prettify.js"></script>
 
-	<!-- Prettify, for source code highlighting -->
-	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.js"></script>
-</body>
+    <!-- Prettify, for source code highlighting -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.js"></script>
+  </body>
 </html>
