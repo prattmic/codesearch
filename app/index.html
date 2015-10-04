@@ -6,6 +6,11 @@
 	<!-- Bootstrap, for layout -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
+	<!-- Prettify, for source code highlighting -->
+	<link rel="stylesheet" href="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.css" />
+
+	<link rel="stylesheet" href="app.css" />
+
 	<title>Code Search</title>
 </head>
 
@@ -20,7 +25,7 @@
 				<div class="navbar-collapse">
 					<form class="navbar-form navbar-left" name="search">
 						<div class="form-group">
-							<input class="form-control" placeholder="Search" />
+							<input ng-model="input" class="form-control" placeholder="Search" />
 						</div>
 						<button type="submit" class="btn btn-primary">Search</button>
 					</form>
@@ -32,14 +37,14 @@
 	<div class="container">
 		<!-- A file being displayed -->
 		<div id="file">
-			<!-- Here is our sample code -->
-			<pre class="prettyprint">package main
+			<prettify>{{input}}</prettify>
+<prettify>package main
 
 import "fmt"
 
 func main() {
 	fmt.Println("Hello, 世界")
-}</pre>
+}</prettify>
 		</div>
 	</div>
 
@@ -48,6 +53,6 @@ func main() {
 	<script src="app.js"></script>
 
 	<!-- Prettify, for source code highlighting -->
-	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.js"></script>
 </body>
 </html>
