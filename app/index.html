@@ -1,12 +1,53 @@
 <!DOCTYPE html>
-<html ng-app="search">
-	<head>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
-		<script src="app.js"></script>
-	</head>
+<html lang="en" ng-app="search">
+<head>
+	<meta charset="UTF-8" />
 
-	<body>
-		<h1>{{"Hello" + " World!"}}</h1>
-	</body>
+	<!-- Bootstrap, for layout -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+	<title>Code Search</title>
+</head>
+
+<body>
+	<div class="container-fluid">
+		<nav class="navbar navbar-default">
+			<div class="container">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">Code Search</a>
+				</div>
+
+				<div class="navbar-collapse">
+					<form class="navbar-form navbar-left" name="search">
+						<div class="form-group">
+							<input class="form-control" placeholder="Search" />
+						</div>
+						<button type="submit" class="btn btn-primary">Search</button>
+					</form>
+				</div>
+			</div>
+		</nav>
+	</div>
+
+	<div class="container">
+		<!-- A file being displayed -->
+		<div id="file">
+			<!-- Here is our sample code -->
+			<pre class="prettyprint">package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, 世界")
+}</pre>
+		</div>
+	</div>
+
+	<!-- Angular, for app -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+	<script src="app.js"></script>
+
+	<!-- Prettify, for source code highlighting -->
+	<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+</body>
 </html>
