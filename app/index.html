@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="search">
   <head>
+    <base href="/">
     <meta charset="UTF-8" />
 
     <!-- Bootstrap, for layout -->
@@ -21,7 +22,7 @@
         <div class="container">
 
           <div class="navbar-header">
-            <a class="navbar-brand" href="#">Code Search</a>
+            <a class="navbar-brand" href="/">Code Search</a>
           </div>
 
           <div class="navbar-collapse collapse">
@@ -32,14 +33,14 @@
       </nav>
     </div>
 
-    <div class="container">
-      <display-file></display-file>
+    <div class="container" ng-view>
     </div>
 
     <!-- Angular, for app -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.min.js"></script>
     <script src="app.js"></script>
-    <script src="directives.js"></script>
+    <script src="controllers.js"></script>
     <script src="prettify.js"></script>
 
     <!-- Prettify, for source code highlighting -->
