@@ -4,23 +4,13 @@
   app.directive('searchBox', function() {
     return {
       restrict: 'E',
-      templateUrl: 'search.html',
-      controller: ['$http', '$location', function($http, $location) {
+      templateUrl: 'search-box.html',
+      controller: ['$location', function($location) {
         var search = this;
         search.query = "";
 
         search.search = function(main) {
-          $http.post('/search', search.query)
-            .success(function(response) {
-              console.log(response);
-              if (response && response.length) {
-                // Redirect to the first result
-                $location.path('/file/' + response[0].Path);
-              }
-            })
-            .error(function(response) {
-              console.log(response);
-            });
+          $location.path('/search').search({'query': search.query});
         };
       }],
       controllerAs: 'search'
@@ -43,6 +33,22 @@
       })
       .error(function(response) {
         file.contents = 'Unable to load ' + file.name + ': ' + response;
+      });
+  }]);
+
+  app.controller('SearchCtrl', ['$routeParams', '$http', function($routeParams, $http) {
+    var search = this;
+    search.query = $routeParams.query;
+    search.results = [];
+    search.error = '';
+
+    $http.post('/api/search', search.query)
+      .success(function(response) {
+        search.results = response;
+      })
+      .error(function(response) {
+        search.results = [];
+        search.error = 'Search error: ' + response;
       });
   }]);
 })();

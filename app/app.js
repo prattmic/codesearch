@@ -12,6 +12,12 @@
       controllerAs: 'file',
     });
 
+    $routeProvider.when('/search', {
+      templateUrl: 'search.html',
+      controller: 'SearchCtrl',
+      controllerAs: 'search',
+    });
+
     $routeProvider.otherwise({
       redirectTo: '/'
     });

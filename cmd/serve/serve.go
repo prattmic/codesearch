@@ -90,10 +90,12 @@ func main() {
 	r.PathPrefix("/src").Methods("GET").
 		Handler(http.StripPrefix("/src", http.FileServer(http.Dir(*src))))
 
-	r.PathPrefix("/search").Methods("POST").HandlerFunc(searchHandler)
+	r.PathPrefix("/api/search").Methods("POST").HandlerFunc(searchHandler)
 
 	// Single-page app URLs are always served with the index page.
 	r.PathPrefix("/file/").Methods("GET").
+		Handler(&SingleFile{path.Join(*app, "index.html")})
+	r.Path("/search").Methods("GET").
 		Handler(&SingleFile{path.Join(*app, "index.html")})
 
 	r.PathPrefix("/").Methods("GET").

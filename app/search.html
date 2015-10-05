@@ -1,13 +1,22 @@
-<form class="navbar-form-alt" name="searchForm"
-      ng-submit="searchForm.$valid && search.search(main)" novalidate>
-  <div class="form-group">
-    <div class="input-group">
-      <input ng-model="search.query" type="text" class="form-control" placeholder="Search">
-      <span class="input-group-btn">
-        <button type="submit" class="btn btn-default">
-          <span class="glyphicon glyphicon-search"></span>
-        </button>
-      </span>
+<h3>Search results</h3>
+
+<div ng-hide="search.query">
+  <h4>You didn't provide a query!</h4>
+</div>
+
+<div ng-show="search.error">
+  <h4>{{search.error}}</h4>
+</div>
+
+<div ng-hide="search.results">
+  <h4>No results!</h4>
+</div>
+
+<div ng-show="search.results">
+  <div ng-repeat="result in search.results">
+    <a href="/file/{{result.Path}}">{{result.Path}}</a>
+    <div ng-repeat="match in result.Matches">
+      <prettify>{{match.Str}}</prettify>
     </div>
   </div>
-</form>
+</div>
