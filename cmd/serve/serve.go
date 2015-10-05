@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path"
 
 	"github.com/gorilla/mux"
 
@@ -50,6 +53,28 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// SingleFile always serves the same file.
+type SingleFile struct {
+	Path string
+}
+
+// ServeHTTP serves the file at Path.
+func (f *SingleFile) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	file, err := os.Open(f.Path)
+	if err != nil {
+		log.Printf("Error opening %v: %v", f.Path, err)
+		http.Error(w, "File not found", 404)
+		return
+	}
+
+	_, err = io.Copy(w, file)
+	if err != nil {
+		log.Printf("Error copying %v: %v", f.Path, err)
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+}
+
 func main() {
 	flag.Parse()
 
@@ -63,6 +88,10 @@ func main() {
 		Handler(http.StripPrefix("/src", http.FileServer(http.Dir(*src))))
 
 	r.PathPrefix("/search").Methods("POST").HandlerFunc(searchHandler)
+
+	// Single-page app URLs are always served with the index page.
+	r.PathPrefix("/file/").Methods("GET").
+		Handler(&SingleFile{path.Join(*app, "index.html")})
 
 	r.PathPrefix("/").Methods("GET").
 		Handler(http.FileServer(http.Dir(*app)))
