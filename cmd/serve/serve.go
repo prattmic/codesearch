@@ -46,6 +46,9 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Query: %q, Results: %+v", query, results)
+
+	w.Header().Add("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(results); err != nil {
 		log.Printf("Unable to write results: %v", err)
 		http.Error(w, "Internal server error", 500)

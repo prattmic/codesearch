@@ -13,7 +13,7 @@
           $http.post('/search', search.query)
             .success(function(response) {
               console.log(response);
-              if (response.length) {
+              if (response && response.length) {
                 // Redirect to the first result
                 $location.path('/file/' + response[0].Path);
               }
