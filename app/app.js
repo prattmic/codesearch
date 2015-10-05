@@ -30,5 +30,15 @@
       main.file = search.query;
       search.query = "";
     };
+
+    search.search = function() {
+      $http.post('/search', search.query)
+        .success(function(response) {
+          console.log(response);
+        })
+        .error(function(response) {
+          console.log(response);
+        });
+    };
   }]);
 })();

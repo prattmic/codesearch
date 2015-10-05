@@ -14,4 +14,3 @@ var sourceTemplate = template.Must(template.New("source").Parse(`<html>
 	</body>
 </html>
 `))
-

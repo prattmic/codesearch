@@ -3,6 +3,7 @@ package search
 import (
 	"regexp/syntax"
 	"runtime"
+	"strings"
 
 	"github.com/google/codesearch/index"
 	pt "github.com/monochromegane/the_platinum_searcher"
@@ -16,13 +17,15 @@ type Result struct {
 
 // Searcher can search with a given index.
 type Searcher struct {
-	idx *index.Index
+	idx    *index.Index
+	prefix string
 }
 
 // NewSearcher creates a Searcher for the provided index.
-func NewSearcher(file string) *Searcher {
+func NewSearcher(file string, prefix string) *Searcher {
 	return &Searcher{
-		idx: index.Open(file),
+		idx:    index.Open(file),
+		prefix: prefix,
 	}
 }
 
@@ -69,7 +72,7 @@ func (s *Searcher) Search(regexp string) ([]Result, error) {
 	for p := range out {
 		if len(p.Matches) > 0 {
 			results = append(results, Result{
-				Path:    p.Path,
+				Path:    strings.TrimPrefix(p.Path, s.prefix),
 				Matches: p.Matches,
 			})
 		}

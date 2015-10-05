@@ -31,7 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	s := search.NewSearcher(*index)
+	s := search.NewSearcher(*index, "")
 
 	results, err := s.Search(flag.Arg(0))
 	if err != nil {

@@ -26,7 +26,7 @@
 
           <div class="navbar-collapse collapse" ng-controller="SearchController as search">
             <form class="navbar-form-alt" name="searchForm"
-                  ng-submit="searchForm.$valid && search.loadFile(main)" novalidate>
+                  ng-submit="searchForm.$valid && search.search()" novalidate>
               <div class="form-group">
                 <div class="input-group">
                   <input ng-model="search.query" type="text" class="form-control" placeholder="Search">
