@@ -22,23 +22,33 @@
     });
   }]);
 
-  app.controller('SearchController', ['$http', function($http) {
-    var search = this;
-    search.query = "";
+  app.directive('searchBox', function() {
+    return {
+      restrict: 'E',
+      templateUrl: 'search.html',
+      controller: ['$http', function($http) {
+        var search = this;
+        search.query = "";
 
-    search.loadFile = function(main) {
-      main.file = search.query;
-      search.query = "";
-    };
+        search.loadFile = function(main) {
+          main.file = search.query;
+          search.query = "";
+        };
 
-    search.search = function() {
-      $http.post('/search', search.query)
-        .success(function(response) {
-          console.log(response);
-        })
-        .error(function(response) {
-          console.log(response);
-        });
+        search.search = function(main) {
+          $http.post('/search', search.query)
+            .success(function(response) {
+              console.log(response);
+              if (response.length) {
+                main.file = response[0].Path;
+              }
+            })
+            .error(function(response) {
+              console.log(response);
+            });
+        };
+      }],
+      controllerAs: 'search'
     };
-  }]);
+  });
 })();

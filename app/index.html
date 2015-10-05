@@ -24,20 +24,8 @@
             <a class="navbar-brand" href="#">Code Search</a>
           </div>
 
-          <div class="navbar-collapse collapse" ng-controller="SearchController as search">
-            <form class="navbar-form-alt" name="searchForm"
-                  ng-submit="searchForm.$valid && search.search()" novalidate>
-              <div class="form-group">
-                <div class="input-group">
-                  <input ng-model="search.query" type="text" class="form-control" placeholder="Search">
-                  <span class="input-group-btn">
-                    <button type="submit" class="btn btn-default">
-                      <span class="glyphicon glyphicon-search"></span>
-                    </button>
-                  </span>
-                </div>
-              </div>
-            </form>
+          <div class="navbar-collapse collapse">
+            <search-box></search-box>
           </div>
 
         </div>
