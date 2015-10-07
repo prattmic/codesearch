@@ -39,7 +39,10 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results, err := searcher.Search(string(query))
+	results, err := searcher.Search(search.Options{
+		Regexp:  string(query),
+		Context: 3,
+	})
 	if err != nil {
 		log.Printf("Search error: %v", err)
 		http.Error(w, fmt.Sprintf("Search error: %v", err), 400)

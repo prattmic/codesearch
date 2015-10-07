@@ -33,7 +33,7 @@ func main() {
 
 	s := search.NewSearcher(*index, "")
 
-	results, err := s.Search(flag.Arg(0))
+	results, err := s.Search(search.Options{Regexp: flag.Arg(0)})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

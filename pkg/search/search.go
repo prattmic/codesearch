@@ -9,9 +9,22 @@ import (
 	pt "github.com/monochromegane/the_platinum_searcher"
 )
 
+// Options are passed to Searcher.Search.
+type Options struct {
+	// Regexp is the search query.
+	Regexp string
+
+	// Context is the number of snippet lines to include
+	// before and after the result.
+	Context int
+}
+
 // Result describes a search result.
 type Result struct {
-	Path    string
+	// Path is the local path of the result file.
+	Path string
+
+	// Matches are the individual matches in the file.
 	Matches []*pt.Match
 }
 
@@ -30,15 +43,15 @@ func NewSearcher(file string, prefix string) *Searcher {
 }
 
 // Search returns matches for the given regexp.
-func (s *Searcher) Search(regexp string) ([]Result, error) {
+func (s *Searcher) Search(opts Options) ([]Result, error) {
 	// Package index needs a regexp from the syntax package.
-	re, err := syntax.Parse(regexp, syntax.POSIX)
+	re, err := syntax.Parse(opts.Regexp, syntax.POSIX)
 	if err != nil {
 		return nil, err
 	}
 
 	// While package pt wants us to use their function to create a pattern.
-	pat, err := pt.NewPattern(regexp, "", false, false, true)
+	pat, err := pt.NewPattern(opts.Regexp, "", false, false, true)
 	if err != nil {
 		return nil, err
 	}
@@ -48,12 +61,14 @@ func (s *Searcher) Search(regexp string) ([]Result, error) {
 
 	// Start searching. Grep takes files to search on in and sends
 	// results to out.
-	opts := pt.Option{
-		Proc: runtime.NumCPU(),
+	popt := pt.Option{
+		Before: opts.Context,
+		After:  opts.Context,
+		Proc:   runtime.NumCPU(),
 	}
-	in := make(chan *pt.GrepParams, opts.Proc)
-	out := make(chan *pt.PrintParams, opts.Proc)
-	go pt.Grep(in, out, &opts)
+	in := make(chan *pt.GrepParams, popt.Proc)
+	out := make(chan *pt.PrintParams, popt.Proc)
+	go pt.Grep(in, out, &popt)
 
 	// Send files to search.
 	go func() {
