@@ -41,7 +41,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 	results, err := searcher.Search(search.Options{
 		Regexp:  string(query),
-		Context: 3,
+		Context: 2,
 	})
 	if err != nil {
 		log.Printf("Search error: %v", err)

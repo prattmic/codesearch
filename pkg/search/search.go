@@ -19,13 +19,54 @@ type Options struct {
 	Context int
 }
 
+// Match describes a single match within a file.
+type Match struct {
+	// Start is the line number of the first line in the snippet.
+	Start int
+
+	// Snippet is a snippet from the file containing the match.
+	Snippet string
+}
+
 // Result describes a search result.
 type Result struct {
 	// Path is the local path of the result file.
 	Path string
 
 	// Matches are the individual matches in the file.
-	Matches []*pt.Match
+	Matches []Match
+}
+
+// NewResult builds a result from a slice of pt.Match.
+func MakeResult(path string, ptMatches []*pt.Match) Result {
+	var matches []Match
+	for _, m := range ptMatches {
+		var lines []string
+		start := m.Num
+
+		for _, l := range m.Befores {
+			if l.Num < start {
+				start = l.Num
+			}
+			lines = append(lines, l.Str)
+		}
+
+		lines = append(lines, m.Str)
+
+		for _, l := range m.Afters {
+			lines = append(lines, l.Str)
+		}
+
+		matches = append(matches, Match{
+			Start: start,
+			Snippet: strings.Join(lines, "\n"),
+		})
+	}
+
+	return Result{
+		Path:    path,
+		Matches: matches,
+	}
 }
 
 // Searcher can search with a given index.
@@ -86,10 +127,8 @@ func (s *Searcher) Search(opts Options) ([]Result, error) {
 	var results []Result
 	for p := range out {
 		if len(p.Matches) > 0 {
-			results = append(results, Result{
-				Path:    strings.TrimPrefix(p.Path, s.prefix),
-				Matches: p.Matches,
-			})
+			path := strings.TrimPrefix(p.Path, s.prefix)
+			results = append(results, MakeResult(path, p.Matches))
 		}
 	}
 
