@@ -49,7 +49,13 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Query: %q, Results: %+v", query, results)
+	// Serve no more than 10 files' results.
+	total := len(results)
+	if total > 10 {
+		results = results[:10]
+	}
+
+	log.Printf("Query: %q, Total results: %d, Serving: %+v", query, total, results)
 
 	w.Header().Add("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(results); err != nil {
