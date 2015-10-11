@@ -16,7 +16,7 @@
   <div ng-repeat="result in search.results">
     <a href="/file/{{result.Path}}">{{result.Path}}</a>
     <div ng-repeat="match in result.Matches">
-      <prettify>{{match.Str}}</prettify>
+      <prettify line="{{match.Num}}">{{match.Str}}</prettify>
     </div>
   </div>
 </div>

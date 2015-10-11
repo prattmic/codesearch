@@ -13,8 +13,16 @@
           return raw.html();
         }, function(html){
           // ... then redo the formatted content.
+
+          // Enable line numbers.
+          var line = true;
+          if (attrs.line) {
+            // Starting line number.
+            line = parseInt(attrs.line, 10);
+          }
+
           formatted = element.find("span").next();
-          formatted.html(prettyPrintOne(html));
+          formatted.html(prettyPrintOne(html, null, line));
         });
       }
     };
