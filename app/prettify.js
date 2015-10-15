@@ -14,6 +14,11 @@
         }, function(html){
           // ... then redo the formatted content.
 
+          if (attrs.highlight) {
+              html = html.replace(RegExp(attrs.highlight),
+                                  "<span class=\"highlight\">$&</span>");
+          }
+
           // Enable line numbers.
           var line = true;
           if (attrs.line) {
