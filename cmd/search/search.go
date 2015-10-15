@@ -41,7 +41,8 @@ func main() {
 
 	for _, r := range results {
 		for _, m := range r.Matches {
-			fmt.Printf("%s:%d: %s\n", r.Path, m.Start, m.Snippet)
+			snippet := m.SnippetBefore + m.SnippetMatch + m.SnippetAfter
+			fmt.Printf("%s:%d: %s\n", r.Path, m.Start, snippet)
 		}
 	}
 }

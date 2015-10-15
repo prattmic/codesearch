@@ -25,12 +25,18 @@ type Match struct {
 	// Start is the line number of the first line in the snippet.
 	Start int
 
-	// Snippet is a snippet from the file containing the match.
-	Snippet string
+	// SnippetBefore is the portion of the snippet before the match.
+	// It includes text on previous context lines and the same line
+	// as the match.
+	SnippetBefore string
 
-	// Indicies is a slice of byte index pairs, one pair for each
-	// match within Snippet.
-	Indicies [][]int
+	// SnippetMatch is the exact matching string.
+	SnippetMatch string
+
+	// SnippetAfter is the portion of the snippet after the match.
+	// It includes text on the same line as the match as well as
+	// following context lines.
+	SnippetAfter string
 }
 
 // Result describes a search result.
@@ -46,36 +52,39 @@ type Result struct {
 func MakeResult(path string, pattern *regexp.Regexp, ptMatches []*pt.Match) Result {
 	var matches []Match
 	for _, m := range ptMatches {
-		var lines []string
 		start := m.Num
 
-		for _, l := range m.Befores {
+		var snippetBefore string
+		for i, l := range m.Befores {
 			if l.Num < start {
 				start = l.Num
 			}
-			lines = append(lines, l.Str)
+			if i != 0 {
+				snippetBefore += "\n";
+			}
+			snippetBefore += l.Str
 		}
 
-		lines = append(lines, m.Str)
+		if len(m.Befores) > 0 {
+			snippetBefore += "\n";
+		}
+
+		// Find the exact match on the matching line.
+		i := pattern.FindStringIndex(m.Str)
+
+		snippetBefore += m.Str[:i[0]]
+		snippetMatch := m.Str[i[0]:i[1]]
+		snippetAfter := m.Str[i[1]:]
 
 		for _, l := range m.Afters {
-			lines = append(lines, l.Str)
-		}
-
-		snippet := strings.Join(lines, "\n")
-
-		var indicies [][]int
-		r := pattern.FindAllStringIndex(snippet, -1)
-		for _, i := range r {
-			// The first two items are the match for the
-			// entire expression.
-			indicies = append(indicies, i[:2])
+			snippetAfter += "\n" + l.Str
 		}
 
 		matches = append(matches, Match{
 			Start:    start,
-			Snippet:  snippet,
-			Indicies: indicies,
+			SnippetBefore:  snippetBefore,
+			SnippetMatch:  snippetMatch,
+			SnippetAfter:  snippetAfter,
 		})
 	}
 
