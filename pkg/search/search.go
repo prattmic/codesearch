@@ -1,6 +1,7 @@
 package search
 
 import (
+	"regexp"
 	"regexp/syntax"
 	"runtime"
 	"strings"
@@ -26,6 +27,10 @@ type Match struct {
 
 	// Snippet is a snippet from the file containing the match.
 	Snippet string
+
+	// Indicies is a slice of byte index pairs, one pair for each
+	// match within Snippet.
+	Indicies [][]int
 }
 
 // Result describes a search result.
@@ -38,7 +43,7 @@ type Result struct {
 }
 
 // NewResult builds a result from a slice of pt.Match.
-func MakeResult(path string, ptMatches []*pt.Match) Result {
+func MakeResult(path string, pattern *regexp.Regexp, ptMatches []*pt.Match) Result {
 	var matches []Match
 	for _, m := range ptMatches {
 		var lines []string
@@ -57,9 +62,20 @@ func MakeResult(path string, ptMatches []*pt.Match) Result {
 			lines = append(lines, l.Str)
 		}
 
+		snippet := strings.Join(lines, "\n")
+
+		var indicies [][]int
+		r := pattern.FindAllStringIndex(snippet, -1)
+		for _, i := range r {
+			// The first two items are the match for the
+			// entire expression.
+			indicies = append(indicies, i[:2])
+		}
+
 		matches = append(matches, Match{
-			Start: start,
-			Snippet: strings.Join(lines, "\n"),
+			Start:    start,
+			Snippet:  snippet,
+			Indicies: indicies,
 		})
 	}
 
@@ -128,7 +144,7 @@ func (s *Searcher) Search(opts Options) ([]Result, error) {
 	for p := range out {
 		if len(p.Matches) > 0 {
 			path := strings.TrimPrefix(p.Path, s.prefix)
-			results = append(results, MakeResult(path, p.Matches))
+			results = append(results, MakeResult(path, p.Pattern.Regexp, p.Matches))
 		}
 	}
 
