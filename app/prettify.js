@@ -9,7 +9,7 @@
       link: function($scope, element, attrs) {
         $scope.$watch(function() {
           // Watch for the raw content to change.
-          raw = element.find("span");
+          raw = element.find(".prettify-raw");
           return raw.html();
         }, function(html){
           // ... then redo the formatted content.
@@ -21,15 +21,7 @@
             line = parseInt(attrs.line, 10);
           }
 
-          // <prettify> -> <pre> -> <span>
-          formatted = element.children().children();
-          while (formatted.length && !formatted.hasClass("prettify-formatted")) {
-            formatted = formatted.next();
-          }
-          if (!formatted.length) {
-              console.error("Unable to find .prettify-formatted");
-              return;
-          }
+          formatted = element.find(".prettify-formatted");
           formatted.html(prettyPrintOne(html, null, line));
         });
       }
