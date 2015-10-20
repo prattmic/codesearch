@@ -1,18 +1,17 @@
-// Binary codesearch simply provides a basic test for package get for now.
+// Binary get simply provides a basic test for package get for now.
 package main
 
 import (
 	"flag"
 	"fmt"
 	"os"
-	"sort"
 
 	"github.com/prattmic/codesearch/pkg/get"
 )
 
-var usageMessage = `usage: codesearch package
+var usageMessage = `usage: get package gopath
 
-Prints all of the (recursive) dependencies of the package.`
+Download a package and all of its dependencies into gopath.`
 
 func main() {
 	flag.Usage = func() {
@@ -21,19 +20,16 @@ func main() {
 	}
 	flag.Parse()
 
-	if len(flag.Args()) != 1 {
+	if len(flag.Args()) != 2 {
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	deps, err := get.PackageDependencies(flag.Arg(0))
-	if err != nil {
+	pkg := flag.Arg(0)
+	gopath := flag.Arg(1)
+
+	if err := get.Get(pkg, gopath); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-	}
-
-	sort.Strings(deps)
-	for _, d := range deps {
-		fmt.Println(d)
 	}
 }
