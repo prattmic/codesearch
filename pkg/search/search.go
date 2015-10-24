@@ -60,13 +60,13 @@ func MakeResult(path string, pattern *regexp.Regexp, ptMatches []*pt.Match) Resu
 				start = l.Num
 			}
 			if i != 0 {
-				snippetBefore += "\n";
+				snippetBefore += "\n"
 			}
 			snippetBefore += l.Str
 		}
 
 		if len(m.Befores) > 0 {
-			snippetBefore += "\n";
+			snippetBefore += "\n"
 		}
 
 		// Find the exact match on the matching line.
@@ -81,8 +81,8 @@ func MakeResult(path string, pattern *regexp.Regexp, ptMatches []*pt.Match) Resu
 		}
 
 		matches = append(matches, Match{
-			Start:    start,
-			SnippetBefore:  snippetBefore,
+			Start:         start,
+			SnippetBefore: snippetBefore,
 			SnippetMatch:  snippetMatch,
 			SnippetAfter:  snippetAfter,
 		})
