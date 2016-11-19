@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	index      = flag.String("i", "", "Index to search")
-	cpuProfile = flag.String("cpu_profile", "", "Save a CPU profile to this file")
+	index       = flag.String("i", "", "Index to search")
+	cpuProfile  = flag.String("cpu_profile", "", "Save a CPU profile to this file")
+	heapProfile = flag.String("heap_profile", "", "Save a heap profile to this file")
 )
 
 var usageMessage = `usage: search -i index regexp
@@ -45,6 +46,14 @@ func main() {
 			log.Fatal("could not start CPU profile: ", err)
 		}
 		defer pprof.StopCPUProfile()
+	}
+
+	if *heapProfile != "" {
+		f, err := os.Create(*heapProfile)
+		if err != nil {
+			log.Fatal("could not create heap profile: ", err)
+		}
+		defer pprof.Lookup("heap").WriteTo(f, 0)
 	}
 
 	s := search.NewSearcher(*index, "")
