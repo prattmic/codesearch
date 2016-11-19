@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"regexp/syntax"
+	"sync"
 
 	"github.com/google/codesearch/index"
 	"github.com/prattmic/codesearch/pkg/grep"
@@ -99,6 +100,7 @@ func NewSearcher(file string, prefix string) *Searcher {
 }
 
 // Search returns matches for the given regexp.
+// The results are unordered.
 func (s *Searcher) Search(opts Options) ([]Result, error) {
 	// Package index needs a regexp from the syntax package.
 	syntaxRe, err := syntax.Parse(opts.Regexp, syntax.POSIX)
@@ -115,24 +117,51 @@ func (s *Searcher) Search(opts Options) ([]Result, error) {
 	// Find candidate files.
 	fileids := s.idx.PostingQuery(index.RegexpQuery(syntaxRe))
 
-	var results []Result
+	// Grep all the files.
+	rChan := make(chan Result, 10)
+	var wg sync.WaitGroup
 	for _, id := range fileids {
 		path := s.idx.Name(id)
-		f, err := os.Open(path)
-		if err != nil {
-			return nil, err
-		}
 
-		g, err := grep.New(f)
-		if err != nil {
-			return nil, err
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			f, err := os.Open(path)
+			if err != nil {
+				return
+			}
 
-		m := g.Search(re, opts.Context)
-		if len(m) > 0 {
-			results = append(results, MakeResult(path, re, m))
-		}
+			g, err := grep.New(f)
+			if err != nil {
+				return
+			}
+
+			// Copy the regexp to avoid lock contention.
+			m := g.Search(re.Copy(), opts.Context)
+			if len(m) > 0 {
+				rChan <- MakeResult(path, re, m)
+			}
+		}()
 	}
+
+	// Collect the results.
+	var results []Result
+	var wg2 sync.WaitGroup
+	wg2.Add(1)
+	go func() {
+		defer wg2.Done()
+		for {
+			r, ok := <-rChan
+			if !ok {
+				return
+			}
+			results = append(results, r)
+		}
+	}()
+
+	wg.Wait()
+	close(rChan)
+	wg2.Wait()
 
 	return results, nil
 }
