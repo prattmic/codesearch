@@ -1,13 +1,13 @@
 package search
 
 import (
+	"bytes"
+	"os"
 	"regexp"
 	"regexp/syntax"
-	"runtime"
-	"strings"
 
 	"github.com/google/codesearch/index"
-	pt "github.com/monochromegane/the_platinum_searcher"
+	"github.com/prattmic/codesearch/pkg/grep"
 )
 
 // Options are passed to Searcher.Search.
@@ -48,36 +48,26 @@ type Result struct {
 	Matches []Match
 }
 
-// NewResult builds a result from a slice of pt.Match.
-func MakeResult(path string, pattern *regexp.Regexp, ptMatches []*pt.Match) Result {
+// NewResult builds a result from a slice of grep.Match.
+func MakeResult(path string, re *regexp.Regexp, grepMatches []grep.Match) Result {
 	var matches []Match
-	for _, m := range ptMatches {
-		start := m.Num
+	for _, m := range grepMatches {
+		start := m.LineNum - len(m.ContextBefore)
 
-		var snippetBefore string
-		for i, l := range m.Befores {
-			if l.Num < start {
-				start = l.Num
-			}
-			if i != 0 {
-				snippetBefore += "\n"
-			}
-			snippetBefore += l.Str
-		}
-
-		if len(m.Befores) > 0 {
+		snippetBefore := string(bytes.Join(m.ContextBefore, []byte{'\n'}))
+		if len(m.ContextBefore) > 0 {
 			snippetBefore += "\n"
 		}
 
 		// Find the exact match on the matching line.
-		i := pattern.FindStringIndex(m.Str)
+		i := re.FindIndex(m.FullLine)
 
-		snippetBefore += m.Str[:i[0]]
-		snippetMatch := m.Str[i[0]:i[1]]
-		snippetAfter := m.Str[i[1]:]
+		snippetBefore += string(m.FullLine[:i[0]])
+		snippetMatch := string(m.FullLine[i[0]:i[1]])
+		snippetAfter := string(m.FullLine[i[1]:])
 
-		for _, l := range m.Afters {
-			snippetAfter += "\n" + l.Str
+		if len(m.ContextAfter) > 0 {
+			snippetAfter += "\n" + string(bytes.Join(m.ContextAfter, []byte{'\n'}))
 		}
 
 		matches = append(matches, Match{
@@ -111,49 +101,36 @@ func NewSearcher(file string, prefix string) *Searcher {
 // Search returns matches for the given regexp.
 func (s *Searcher) Search(opts Options) ([]Result, error) {
 	// Package index needs a regexp from the syntax package.
-	re, err := syntax.Parse(opts.Regexp, syntax.POSIX)
+	syntaxRe, err := syntax.Parse(opts.Regexp, syntax.POSIX)
 	if err != nil {
 		return nil, err
 	}
 
-	// While package pt wants us to use their function to create a pattern.
-	pat, err := pt.NewPattern(opts.Regexp, "", false, false, true)
+	// While package grep wants us to use the regex package.
+	re, err := regexp.Compile(opts.Regexp)
 	if err != nil {
 		return nil, err
 	}
 
 	// Find candidate files.
-	fileids := s.idx.PostingQuery(index.RegexpQuery(re))
+	fileids := s.idx.PostingQuery(index.RegexpQuery(syntaxRe))
 
-	// Start searching. Grep takes files to search on in and sends
-	// results to out.
-	popt := pt.Option{
-		Before: opts.Context,
-		After:  opts.Context,
-		Proc:   runtime.NumCPU(),
-	}
-	in := make(chan *pt.GrepParams, popt.Proc)
-	out := make(chan *pt.PrintParams, popt.Proc)
-	go pt.Grep(in, out, &popt)
-
-	// Send files to search.
-	go func() {
-		for _, id := range fileids {
-			in <- &pt.GrepParams{
-				Path:    s.idx.Name(id),
-				Pattern: pat,
-			}
-		}
-		// Grep stops when in is empty and closed.
-		close(in)
-	}()
-
-	// Gather results.
 	var results []Result
-	for p := range out {
-		if len(p.Matches) > 0 {
-			path := strings.TrimPrefix(p.Path, s.prefix)
-			results = append(results, MakeResult(path, p.Pattern.Regexp, p.Matches))
+	for _, id := range fileids {
+		path := s.idx.Name(id)
+		f, err := os.Open(path)
+		if err != nil {
+			return nil, err
+		}
+
+		g, err := grep.New(f)
+		if err != nil {
+			return nil, err
+		}
+
+		m := g.Search(re, opts.Context)
+		if len(m) > 0 {
+			results = append(results, MakeResult(path, re, m))
 		}
 	}
 
