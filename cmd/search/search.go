@@ -3,12 +3,17 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"runtime/pprof"
 
 	"github.com/prattmic/codesearch/pkg/search"
 )
 
-var index = flag.String("i", "", "Index to search")
+var (
+	index      = flag.String("i", "", "Index to search")
+	cpuProfile = flag.String("cpu_profile", "", "Save a CPU profile to this file")
+)
 
 var usageMessage = `usage: search -i index regexp
 
@@ -29,6 +34,17 @@ func main() {
 	if len(flag.Args()) != 1 {
 		flag.Usage()
 		os.Exit(1)
+	}
+
+	if *cpuProfile != "" {
+		f, err := os.Create(*cpuProfile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
 	}
 
 	s := search.NewSearcher(*index, "")
