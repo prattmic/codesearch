@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"regexp/syntax"
+	"strings"
 	"sync"
 
 	"github.com/google/codesearch/index"
@@ -88,6 +89,8 @@ func MakeResult(path string, re *regexp.Regexp, grepMatches []grep.Match) Result
 // Searcher can search with a given index.
 type Searcher struct {
 	idx    *index.Index
+
+	// prefix is trimmed from paths in matches.
 	prefix string
 }
 
@@ -139,7 +142,8 @@ func (s *Searcher) Search(opts Options) ([]Result, error) {
 			// Copy the regexp to avoid lock contention.
 			m := g.Search(re.Copy(), opts.Context)
 			if len(m) > 0 {
-				rChan <- MakeResult(path, re, m)
+				p := strings.TrimPrefix(path, s.prefix)
+				rChan <- MakeResult(p, re, m)
 			}
 		}()
 	}
