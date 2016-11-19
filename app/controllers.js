@@ -39,12 +39,14 @@
   app.controller('SearchCtrl', ['$routeParams', '$http', function($routeParams, $http) {
     var search = this;
     search.query = $routeParams.query;
+    search.total = 0;
     search.results = [];
     search.error = '';
 
     $http.post('/api/search', search.query)
       .success(function(response) {
-        search.results = response;
+        search.total = response.Total;
+        search.results = response.Results;
       })
       .error(function(response) {
         search.results = [];

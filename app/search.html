@@ -13,6 +13,7 @@
 </div>
 
 <div ng-show="search.results">
+  <h4>{{search.total}} results</h4>
   <div ng-repeat="result in search.results">
     <a href="/file/{{result.Path}}">{{result.Path}}</a>
     <div ng-repeat="match in result.Matches">

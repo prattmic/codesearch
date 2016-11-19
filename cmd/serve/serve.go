@@ -26,6 +26,15 @@ var (
 
 var searcher *search.Searcher
 
+// searchResponse is the response to /search.
+type searchResponse struct {
+	// Total is the total number of search results.
+	Total int
+
+	// Results is the subset of search results to display.
+	Results []search.Result
+}
+
 func searchHandler(w http.ResponseWriter, r *http.Request) {
 	if searcher == nil {
 		http.Error(w, "Search unavailable", 500)
@@ -55,10 +64,13 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		results = results[:10]
 	}
 
-	log.Printf("Query: %q, Total results: %d, Serving: %+v", query, total, results)
+	resp := searchResponse{
+		Total:   total,
+		Results: results,
+	}
 
 	w.Header().Add("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(results); err != nil {
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		log.Printf("Unable to write results: %v", err)
 		http.Error(w, "Internal server error", 500)
 		return
